@@ -9,27 +9,23 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  String _texto;
+  String _preco;
 
-  Future<String> _atualizar() async {
+  Future<Map> _atualizar() async {
 
     setState(() => {});
 
     String url = "https://blockchain.info/ticker";
 
     http.Response response = await http.get(url);
-    Map<String, dynamic> moedas = json.decode( response.body );
-
-    String lastBRLQuotation = "R\$ " + moedas["BRL"]["last"].toString();
-
-    print("final do future");
-    return lastBRLQuotation;
+    print( response.body );
+    return json.decode( response.body );
   }
 
   @override
   Widget build(BuildContext context) {
 
-    return FutureBuilder<String>(
+    return FutureBuilder<Map>(
       future: _atualizar(),
       builder: (context, snapshot) {
 
@@ -37,14 +33,15 @@ class _HomeState extends State<Home> {
           case ConnectionState.active:
           case ConnectionState.done:
             if (snapshot.hasError) {
-              _texto = "Erro ao carregar";
+              _preco = "Erro ao carregar";
             } else {
-              _texto = snapshot.data;
+              print(snapshot.data);
+              _preco = "R\$ " + snapshot.data['BRL']['last'].toString();
             }
             break;
           case ConnectionState.none:
           case ConnectionState.waiting:
-            _texto = "Carregando preço...";
+            _preco = "Atualizando...";
             break;
         }
 
@@ -59,7 +56,7 @@ class _HomeState extends State<Home> {
               Padding(
                 padding: EdgeInsets.fromLTRB(0, 25, 0, 25),
                 child: Text(
-                  _texto,
+                  _preco,
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
